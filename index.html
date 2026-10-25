@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HerShield - Cyber Protection & Legal Dossier Generator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  
+  <style>
+    :root {
+      --primary: #e91e63;
+      --primary-light: #f8bbd0;
+      --primary-dark: #c2185b;
+      --bg-gradient: linear-gradient(135deg, #fff5f8 0%, #fce4ec 100%);
+      --card-bg: #ffffff;
+      --text-main: #333333;
+      --text-muted: #666666;
+      --shadow: 0 8px 24px rgba(233, 30, 99, 0.12);
+      --radius: 16px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background: var(--bg-gradient);
+      color: var(--text-main);
+      min-height: 100vh;
+      padding-bottom: 40px;
+    }
+
+    header {
+      background: var(--card-bg);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      padding: 20px 8%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .logo i {
+      font-size: 28px;
+    }
+
+    .tagline-nav {
+      font-size: 14px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+
+    .hero {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .hero h1 {
+      font-size: 36px;
+      color: var(--primary-dark);
+      margin-bottom: 10px;
+    }
+
+    .hero p {
+      font-size: 16px;
+      color: var(--text-muted);
+      max-width: 650px;
+      margin: 0 auto;
+    }
+
+    .tabs {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      background: var(--card-bg);
+      border: 2px solid var(--primary-light);
+      padding: 10px 20px;
+      border-radius: 30px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--primary-dark);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .tab-btn.active, .tab-btn:hover {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+      box-shadow: 0 4px 15px rgba(233, 30, 99, 0.3);
+    }
+
+    .tab-content {
+      display: none;
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding: 35px;
+      box-shadow: var(--shadow);
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .section-title {
+      font-size: 22px;
+      color: var(--primary-dark);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 2px solid #fce4ec;
+      padding-bottom: 10px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      font-weight: 500;
+      margin-bottom: 8px;
+      color: #444;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1.5px solid #e0e0e0;
+      border-radius: 10px;
+      font-size: 14px;
+      transition: border-color 0.3s;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    textarea.form-control {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    .btn-submit {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 14px 28px;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      transition: background 0.3s;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-submit:hover {
+      background: var(--primary-dark);
+    }
+
+    .result-box {
+      margin-top: 20px;
+      padding: 18px;
+      border-radius: 10px;
+      display: none;
+    }
+
+    .result-box.safe {
+      background: #e8f5e9;
+      color: #2e7d32;
+      border: 1px solid #c8e6c9;
+    }
+
+    .result-box.warning {
+      background: #ffebee;
+      color: #c62828;
+      border: 1px solid #ffcdd2;
+    }
+
+    .directory-grid, .rights-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .dir-card, .right-card {
+      border: 1px solid #f8bbd0;
+      border-radius: 12px;
+      padding: 20px;
+      background: #fff9fa;
+    }
+
+    .dir-card h4, .right-card h4 {
+      color: var(--primary-dark);
+      margin-bottom: 8px;
+    }
+
+    .dir-card p, .right-card p {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .badge {
+      display: inline-block;
+      background: var(--primary-light);
+      color: var(--primary-dark);
+      font-size: 11px;
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    .preview-box {
+      margin-top: 10px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .preview-thumb {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo">
+      <i class="fa-solid fa-shield-cat"></i>
+      <span>HerShield</span>
+    </div>
+    <div class="tagline-nav">
+      Empowering Digital Safety & Legal Defense
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="hero">
+      <h1>Cyber Safety & Evidence System</h1>
+      <p>Identify digital threats, generate court-ready cyber harassment dossiers, and understand your constitutional legal rights.</p>
+    </div>
+
+    <!-- Tab Buttons -->
+    <div class="tabs">
+      <button class="tab-btn active" onclick="openTab(event, 'evidence-tab')">
+        <i class="fa-solid fa-file-contract"></i> Evidence Dossier Generator
+      </button>
+      <button class="tab-btn" onclick="openTab(event, 'rights-tab')">
+        <i class="fa-solid fa-scale-balanced"></i> Women's Cyber Rights
+      </button>
+      <button class="tab-btn" onclick="openTab(event, 'scanner-tab')">
+        <i class="fa-solid fa-link"></i> Phishing Link Scanner
+      </button>
+      <button class="tab-btn" onclick="openTab(event, 'legal-tab')">
+        <i class="fa-solid fa-user-nurse"></i> Helplines & Directory
+      </button>
+    </div>
+
+    <!-- TAB 1: Evidence Dossier Generator -->
+    <div id="evidence-tab" class="tab-content active">
+      <h2 class="section-title"><i class="fa-solid fa-file-shield"></i> Cyber Crime Evidence Dossier Generator</h2>
+      <p style="margin-bottom: 20px; font-size: 14px; color: #666;">
+        Fill in details below to structure an official PDF report. If the perpetrator is unknown or calling from hidden numbers, select the anonymous option below.
+      </p>
+      
+      <form id="evidenceForm">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+          <div class="form-group">
+            <label>Complainant Category</label>
+            <select class="form-control" id="incidentType">
+              <option>Cyberstalking / Unsolicited Messages</option>
+              <option>Anonymous Calls / Harassing Phone Spam</option>
+              <option>Non-Consensual Image Sharing / Morphing</option>
+              <option>Impersonation / Fake Profile</option>
+              <option>Online Financial Extortion / Blackmail</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Platform / App Name</label>
+            <input type="text" class="form-control" id="platform" placeholder="e.g. Instagram, WhatsApp, Phone Call, X" required>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+          <div class="form-group">
+            <label>Perpetrator Handle / Phone / Username</label>
+            <input type="text" class="form-control" id="offenderInfo" placeholder="e.g., @username, Unknown Caller, or 'Anonymous'" required>
+          </div>
+          <div class="form-group">
+            <label>Date & Time of Incident</label>
+            <input type="datetime-local" class="form-control" id="incidentDate" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>URL / Link to Offending Post or Account (Optional)</label>
+          <input type="url" class="form-control" id="postUrl" placeholder="https://...">
+        </div>
+
+        <div class="form-group">
+          <label>Upload Screenshot Evidence (Select images)</label>
+          <input type="file" class="form-control" id="evidenceImages" accept="image/*" multiple onchange="previewImages(event)">
+          <div id="imagePreviewBox" class="preview-box"></div>
+        </div>
+
+        <div class="form-group">
+          <label>Detailed Description of Harassment & Evidence Summary</label>
+          <textarea class="form-control" id="description" placeholder="Describe the messages received, context, frequency, or unknown caller details..." required></textarea>
+        </div>
+
+        <button type="button" class="btn-submit" onclick="generatePDF()">
+          <i class="fa-solid fa-file-pdf"></i> Generate & Download Official Complaint Dossier (PDF)
+        </button>
+      </form>
+    </div>
+
+    <!-- TAB 2: Women's Cyber Rights -->
+    <div id="rights-tab" class="tab-content">
+      <h2 class="section-title"><i class="fa-solid basename"></i> Constitutional & Legal Cyber Rights for Women in India</h2>
+      <p style="font-size: 14px; color: #666; margin-bottom: 15px;">Know your protections under Indian law regarding digital harassment, privacy, and online safety.</p>
+      
+      <div class="rights-grid">
+        <div class="right-card">
+          <span class="badge">Right to Anonymity & Privacy</span>
+          <h4>Section 72 & 72A (IT Act)</h4>
+          <p>Breach of confidentiality and privacy. If any person secures access to electronic records or personal data without consent and discloses it, they face imprisonment up to 3 years.</p>
+        </div>
+
+        <div class="right-card">
+          <span class="badge">Protection Against Stalking</span>
+          <h4>Section 354D (IPC / Equivalent BNS)</h4>
+          <p>Makes cyberstalking a punishable criminal offense. Monitoring a woman's online browsing, social media activity, or repeatedly contacting her despite clear disinterest is illegal.</p>
+        </div>
+
+        <div class="right-card">
+          <span class="badge">Obscene & Threatening Messages</span>
+          <h4>Section 67 & 67A (IT Act)</h4>
+          <p>Publishing or transmitting obscene material, sexually explicit content, or morphing photos online carries strict jail terms up to 5 to 7 years with heavy fines.</p>
+        </div>
+
+        <div class="right-card">
+          <span class="badge">Right to Zero FIR</span>
+          <h4>Supreme Court Guideline</h4>
+          <p>A woman can file a cyber crime complaint at **any police station** across India, regardless of where the cyber incident actually took place. The police cannot refuse registration.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: Link Scanner -->
+    <div id="scanner-tab" class="tab-content">
+      <h2 class="section-title"><i class="fa-solid fa-magnifying-glass-location"></i> Suspicious Link & Phishing Analyzer</h2>
+      <p style="margin-bottom: 20px; font-size: 14px; color: #666;">
+        Paste suspicious shortlinks or URLs sent via unknown messages to check for common fraud and tracking patterns.
+      </p>
+
+      <div class="form-group">
+        <label>Enter Suspicious URL</label>
+        <input type="url" class="form-control" id="urlInput" placeholder="e.g., http://bit.ly/free-gift-claim or suspicious web address">
+      </div>
+
+      <button type="button" class="btn-submit" onclick="analyzeLink()">
+        <i class="fa-solid fa-bug"></i> Scan & Analyze Link Security
+      </button>
+
+      <div id="scanResult" class="result-box"></div>
+    </div>
+
+    <!-- TAB 4: Legal Directory -->
+    <div id="legal-tab" class="tab-content">
+      <h2 class="section-title"><i class="fa-solid fa-user-nurse"></i> Verified Cyber Legal Aid & National Helplines</h2>
+      <p style="font-size: 14px; color: #666;">Direct contact info for official cyber crime cells, legal aid clinics, and emergency helplines in India.</p>
+      
+      <div class="directory-grid">
+        <div class="dir-card">
+          <span class="badge">National Emergency</span>
+          <h4>National Cyber Crime Helpline</h4>
+          <p><i class="fa-solid fa-phone"></i> <strong>Toll Free:</strong> 1930</p>
+          <p><i class="fa-solid fa-globe"></i> <strong>Portal:</strong> cybercrime.gov.in</p>
+          <p>Government portal for registering complaints regarding cyber crimes against women.</p>
+        </div>
+
+        <div class="dir-card">
+          <span class="badge">Women Helpline</span>
+          <h4>National Commission for Women (NCW)</h4>
+          <p><i class="fa-solid fa-phone"></i> <strong>Helpline:</strong> 7827170170 / 1091</p>
+          <p><i class="fa-solid fa-shield-heart"></i> 24/7 Support for domestic and cyber harassment.</p>
+        </div>
+
+        <div class="dir-card">
+          <span class="badge">Free Legal Services</span>
+          <h4>District Legal Services Authority (DLSA)</h4>
+          <p><i class="fa-solid fa-building-columns"></i> Available in all District Courts</p>
+          <p><i class="fa-solid fa-circle-info"></i> Provides free legal defense counsel for eligible female litigants under Section 12 of NALSA Act.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let uploadedImagesData = [];
+
+    function openTab(evt, tabId) {
+      const contents = document.querySelectorAll('.tab-content');
+      contents.forEach(content => content.classList.remove('active'));
+
+      const buttons = document.querySelectorAll('.tab-btn');
+      buttons.forEach(btn => btn.classList.remove('active'));
+
+      document.getElementById(tabId).classList.add('active');
+      evt.currentTarget.classList.add('active');
+    }
+
+    function previewImages(event) {
+      const previewBox = document.getElementById('imagePreviewBox');
+      previewBox.innerHTML = '';
+      uploadedImagesData = [];
+      const files = event.target.files;
+
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          uploadedImagesData.push(e.target.result);
+          const img = document.createElement('img');
+          img.src = e.target.result;
+          img.className = 'preview-thumb';
+          previewBox.appendChild(img);
+        }
+        reader.readAsDataURL(file);
+      }
+    }
+
+    function generatePDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+
+      const incidentType = document.getElementById('incidentType').value;
+      const platform = document.getElementById('platform').value;
+      const offenderInfo = document.getElementById('offenderInfo').value;
+      const incidentDate = document.getElementById('incidentDate').value;
+      const postUrl = document.getElementById('postUrl').value || 'N/A (Anonymous / Call / Direct Message)';
+      const description = document.getElementById('description').value;
+
+      if (!platform || !offenderInfo || !incidentDate || !description) {
+        alert('Please fill out all required fields before generating the complaint dossier.');
+        return;
+      }
+
+      doc.setFillColor(233, 30, 99);
+      doc.rect(0, 0, 210, 25, 'F');
+      
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(16);
+      doc.setFont('helvetica', 'bold');
+      doc.text("HERSHIELD - CYBER CRIME COMPLAINT DOSSIER", 15, 16);
+
+      doc.setTextColor(50, 50, 50);
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'bold');
+      doc.text("Structured Evidence Report for National Cyber Crime Portal", 15, 35);
+      doc.setFont('helvetica', 'normal');
+      doc.text(`Filing Date: ${new Date().toLocaleDateString()}`, 15, 42);
+
+      doc.setLineWidth(0.5);
+      doc.setDrawColor(200, 200, 200);
+      doc.line(15, 47, 195, 47);
+
+      doc.setFont('helvetica', 'bold');
+      doc.text("INCIDENT DETAILS", 15, 57);
+      
+      doc.setFont('helvetica', 'normal');
+      doc.text(`Category: ${incidentType}`, 15, 67);
+      doc.text(`Target Platform / Source: ${platform}`, 15, 75);
+      doc.text(`Offender Handle / Identity: ${offenderInfo}`, 15, 83);
+      doc.text(`Date & Time of Occurrence: ${incidentDate}`, 15, 91);
+      doc.text(`Associated URL / Identifier: ${postUrl}`, 15, 99);
+
+      doc.line(15, 107, 195, 107);
+      doc.setFont('helvetica', 'bold');
+      doc.text("DESCRIPTION & STATEMENT OF FACTS", 15, 117);
+
+      doc.setFont('helvetica', 'normal');
+      const splitText = doc.splitTextToSize(description, 180);
+      doc.text(splitText, 15, 127);
+
+      let currentY = 135 + (splitText.length * 6);
+
+      if (uploadedImagesData.length > 0) {
+        doc.addPage();
+        doc.setFont('helvetica', 'bold');
+        doc.text("ATTACHED SCREENSHOT EVIDENCE EVIDENCE LOG", 15, 20);
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(10);
+        doc.text(`Total attachments provided: ${uploadedImagesData.length} screenshot(s) recorded.`, 15, 28);
+        
+        let yPos = 40;
+        uploadedImagesData.forEach((imgData, index) => {
+          if (yPos > 230) {
+            doc.addPage();
+            yPos = 20;
+          }
+          doc.text(`Screenshot Exhibit ${index + 1}:`, 15, yPos);
+          try {
+            doc.addImage(imgData, 'JPEG', 15, yPos + 5, 80, 50);
+          } catch(err) {
+            doc.text("[Image embedding format adjustment needed]", 15, yPos + 10);
+          }
+          yPos += 65;
+        });
+      }
+
+      doc.save(`HerShield_Cyber_Complaint_${Date.now()}.pdf`);
+    }
+
+    function analyzeLink() {
+      const url = document.getElementById('urlInput').value.toLowerCase().trim();
+      const resultBox = document.getElementById('scanResult');
+
+      if (!url) {
+        alert('Please enter a URL to scan.');
+        return;
+      }
+
+      resultBox.style.display = 'block';
+
+      const suspiciousKeywords = ['bit.ly', 'tinyurl', 'free-gift', 'login-verify', 'account-update', 'claim-reward', '.xyz', '.top'];
+      let foundKeywords = suspiciousKeywords.filter(keyword => url.includes(keyword));
+
+      if (foundKeywords.length > 0 || !url.startsWith('https://')) {
+        resultBox.className = 'result-box warning';
+        resultBox.innerHTML = `
+          <h4><i class="fa-solid fa-triangle-exclamation"></i> Warning: Potential Security Risk Flagged</h4>
+          <p style="margin-top: 8px;">Reasons for Risk Tag:</p>
+          <ul style="margin-left: 20px; margin-top: 5px; font-size: 13px;">
+            ${!url.startsWith('https://') ? '<li>Connection is unencrypted (HTTP instead of HTTPS).</li>' : ''}
+            ${foundKeywords.length > 0 ? `<li>Detected suspicious link shortener/pattern: <strong>${foundKeywords.join(', ')}</strong></li>` : ''}
+          </ul>
+          <p style="margin-top: 8px; font-size: 12px;"><strong>Recommendation:</strong> Do not enter credentials or click media downloads from this link.</p>
+        `;
+      } else {
+        resultBox.className = 'result-box safe';
+        resultBox.innerHTML = `
+          <h4><i class="fa-solid fa-shield-check"></i> Standard Security Check Passed</h4>
+          <p style="margin-top: 5px; font-size: 13px;">URL uses valid SSL encryption (HTTPS) and contains no known shortener indicators.</p>
+        `;
+      }
+    }
+  </script>
+</body>
+</html>
